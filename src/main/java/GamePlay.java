@@ -30,9 +30,16 @@ public class GamePlay extends JPanel {
                     }
                 } else {
                     if (isValidMoveGeneral(selectedRow, selectedCol, row, col)) {
-                        movePiece(selectedRow, selectedCol, row, col);
-                        Player = !Player;
-                        check();
+                        if(movePiece(selectedRow, selectedCol, row, col)){
+                            Pieces piece = board.getBoard()[row][col];
+                            if(piece instanceof Pawn){
+                                Pawn pawn = (Pawn) piece;
+                                pawn.notFirstMove();
+                            }
+                            Player = !Player;
+                            check();
+                        }
+
                         if (isGameOver()) gameOver = true;
                     }
                     pieceSelected = false;
@@ -44,9 +51,24 @@ public class GamePlay extends JPanel {
         });
     }
 
-    private void movePiece(int sRow, int sCol, int eRow, int eCol) {
+    private boolean movePiece(int sRow, int sCol, int eRow, int eCol) {
+        Pieces piece = board.getBoard()[sRow][sCol];
+        Pieces newPiece;
+        if(board.getBoard()[eRow][eCol] != null){
+            newPiece = board.getBoard()[eRow][eCol];
+        }else{
+            newPiece = null;
+        }
+
         board.getBoard()[eRow][eCol] = board.getBoard()[sRow][sCol];
         board.getBoard()[sRow][sCol] = null;
+        if(check()){
+            board.getBoard()[sRow][sCol] = piece;
+            board.getBoard()[eRow][eCol] = newPiece;
+            System.out.println("invalide move ---makes check");
+            return false;
+        }
+        return true;
     }
 
     private boolean isValidMoveGeneral(int sRow, int sCol, int eRow, int eCol) {
